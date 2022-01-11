@@ -13,3 +13,11 @@ func GetOne(data interface{}, id uint) error {
 	}
 	return database.DB.Model(data).Limit(1).Find(data, id).Error
 }
+
+func GetOneByColumn(data interface{}, column string, value interface{}, joins ...string) error {
+	if utilities.IsStruct(data) {
+		return errors.New(messages.CrudDataNotPointer)
+	}
+	statement := database.DB.Model(data)
+	return statement.Limit(1).Find(data, column, value).Error
+}

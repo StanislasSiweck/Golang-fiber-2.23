@@ -6,11 +6,12 @@ import (
 )
 
 type User struct {
-	Id uint `gorm:"primaryKey" json:"id" validate:"omitempty,number"`
+	Id uint `gorm:"primaryKey" json:"id" validate:"omitempty"`
 
 	Firstname string `gorm:"not null; type:varchar(255)" json:"firstname" validate:"required,max=255"`
 	Lastname  string `gorm:"not null; type:varchar(255)" json:"lastname" validate:"required,max=255"`
-	Email     string
+	Email     string `gorm:"not null; type:varbinary(255)" json:"email" validate:"required,max=255"`
+	Password  string `gorm:"not null; type:varchar(255)" json:"password" validate:"required,max=255"`
 
 	//Timestamps
 	CreatedAt time.Time      `json:"created_at"`

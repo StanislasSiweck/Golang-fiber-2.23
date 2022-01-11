@@ -8,9 +8,10 @@ import (
 type User struct {
 	Id uint `gorm:"primaryKey" json:"id" validate:"omitempty,number"`
 
-	Firstname string `gorm:"not null; type:varchar(255)" json:"firstname" validate:"required,max=255"`
-	Lastname  string `gorm:"not null; type:varchar(255)" json:"lastname" validate:"required,max=255"`
-	Email     string
+	Firstname string `gorm:"not null; type:varchar(255)"`
+	Lastname  string `gorm:"not null; type:varchar(255)"`
+	Email     string `gorm:"not null; type:varbinary(255)"`
+	Password  string `gorm:"not null; type:varchar(255)"`
 
 	//Timestamps
 	CreatedAt time.Time      `json:"created_at"`

@@ -14,7 +14,7 @@ func ValidateAuth() fiber.Handler {
 	return func(c *fiber.Ctx) error {
 
 		key := c.Get("Authorization")
-		_, err := jwt.Parse(key, jwtChecker())
+		_, err := jwt.Parse(key, JwtChecker())
 		if err != nil {
 			log.Print("Accès non autorisé à l'API, l'IP du demandeur est: " + c.IP() + ", la clé api utilisée était: " + key + ".")
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message": messages.InvalidAPIKey, "details": "Clé API invalide."})
@@ -23,8 +23,8 @@ func ValidateAuth() fiber.Handler {
 	}
 }
 
-//jwtChecker keyFunc will receive the parsed token and should return the key for validating.
-func jwtChecker() func(token *jwt.Token) (interface{}, error) {
+//JwtChecker keyFunc will receive the parsed token and should return the key for validating.
+func JwtChecker() func(token *jwt.Token) (interface{}, error) {
 	return func(token *jwt.Token) (interface{}, error) {
 		//Make sure that the token method conform to "SigningMethodHMAC"
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
