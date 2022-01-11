@@ -12,9 +12,10 @@ import (
 func GetAllUser(c *fiber.Ctx) error {
 	defer recovery()
 	var users []model.User
+	joins := getJoins(c)
 
-	if err := CRUD.GetAll(&users); err != nil {
-		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID")
+	if err := CRUD.GetAll(&users, joins...); err != nil {
+		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID", err)
 	}
 	return c.Status(http.StatusOK).JSON(fiber.Map{"message": messages.Success, "data": users})
 }
@@ -22,11 +23,12 @@ func GetAllUser(c *fiber.Ctx) error {
 //GetOneUser Récupére un utilisateur
 func GetOneUser(c *fiber.Ctx) error {
 	defer recovery()
+	joins := getJoins(c)
 	userId, _ := c.ParamsInt("id")
 
 	var user model.User
-	if err := CRUD.GetOne(&user, uint(userId)); err != nil {
-		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID")
+	if err := CRUD.GetOne(&user, uint(userId), joins...); err != nil {
+		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID", err)
 	}
 	return c.Status(http.StatusOK).JSON(fiber.Map{"message": messages.Success, "data": user})
 }
@@ -44,7 +46,7 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 
 	if err := CRUD.Create(&user); err != nil {
-		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID")
+		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID", err)
 	}
 	return c.Status(http.StatusOK).JSON(fiber.Map{"message": messages.SuccessCreate, "data": user})
 }
@@ -64,12 +66,12 @@ func UpdateUser(c *fiber.Ctx) error {
 
 	var user model.User
 	if err := CRUD.GetOne(&user, uint(userId)); err != nil {
-		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID")
+		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID", err)
 	}
 
 	userUpdate.Id = user.Id
 	if err := CRUD.Update(&userUpdate); err != nil {
-		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID")
+		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID", err)
 	}
 
 	return c.Status(http.StatusOK).JSON(fiber.Map{"message": messages.SuccessUpdate, "details": userUpdate})
@@ -82,11 +84,21 @@ func DeleteUser(c *fiber.Ctx) error {
 
 	var user model.User
 	if err := CRUD.GetOne(&user, uint(userId)); err != nil {
-		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID")
+		return SendError(fiber.StatusNotFound, messages.Error, "Impossible de trouver le user avec l'ID", err)
 	}
 
 	if err := CRUD.Delete(&user); err != nil {
 		return SendError(fiber.StatusInternalServerError, "messages.DeleteContractError", "", err)
 	}
 	return c.Status(http.StatusOK).JSON(fiber.Map{"message": messages.SuccessDelete, "details": ""})
+}
+
+func CurrentUser(c *fiber.Ctx) error {
+	joins := getJoins(c)
+	user := getCurrentUser(c, joins...)
+
+	if user.Id != 0 {
+		return c.Status(http.StatusOK).JSON(fiber.Map{"message": messages.Success, "data": user})
+	}
+	return SendError(fiber.StatusNotFound, messages.Error, "Utilisateur pas trouver")
 }

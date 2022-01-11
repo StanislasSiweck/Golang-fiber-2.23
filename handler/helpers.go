@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gofiber/fiber/v2"
 	"os"
+	"strings"
 )
 
 //SendBodyParseError
@@ -16,4 +17,9 @@ func SendBodyParseError(error error) error {
 //SendValidatorError Returns a validator error
 func SendValidatorError(error error) error {
 	return SendError(fiber.StatusUnprocessableEntity, "messages.ErrorValidating", error.Error(), error)
+}
+
+func getJoins(c *fiber.Ctx) []string {
+	join := c.Query("with")
+	return strings.Split(join, ",")
 }

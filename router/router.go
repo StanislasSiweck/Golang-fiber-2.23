@@ -52,12 +52,20 @@ func SetupRoutes(app *fiber.App) {
 		return c.SendString("Hello, World !")
 	})
 
-	api.Get("/JWT", handler.Login)
+	api.Get("/login", handler.Login)
 
 	user := api.Group("/user", middleware.ValidateAuth())
 	user.Get("/", handler.GetAllUser)
+	user.Get("/current", handler.CurrentUser)
 	user.Get("/:id", handler.GetOneUser)
 	user.Post("/", handler.CreateUser)
 	user.Put("/:id", handler.UpdateUser)
 	user.Delete("/:id", handler.DeleteUser)
+
+	role := api.Group("/role", middleware.ValidateAuth())
+	role.Get("/", handler.GetAllRole)
+	role.Get("/:id", handler.GetOneRole)
+	role.Post("/", handler.CreateRole)
+	role.Put("/:id", handler.UpdateRole)
+	role.Delete("/:id", handler.DeleteRole)
 }
