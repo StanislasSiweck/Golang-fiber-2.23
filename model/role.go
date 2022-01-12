@@ -11,6 +11,6 @@ type Role struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	//Many 2 many FK
-	Users []User `gorm:"many2many:user_roles;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	//Has many FK
+	Users []User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

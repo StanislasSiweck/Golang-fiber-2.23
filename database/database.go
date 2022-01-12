@@ -6,10 +6,13 @@ func DropTables() {
 	migrator := DB.Migrator()
 	_ = migrator.DropTable(
 		"migrations",
+		"casbin_rule",
+		"user_roles",
 	)
 
 	_ = migrator.DropTable(
 		&model.User{},
+		&model.Role{},
 	)
 }
 

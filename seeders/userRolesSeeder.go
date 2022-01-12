@@ -3,16 +3,18 @@ package seeders
 import (
 	"Golang_Fiber/database/repositories/CRUD"
 	"Golang_Fiber/model"
+	"fmt"
 )
 
 func userRolesSeeder() {
 	var users []model.User
 	_ = CRUD.GetAll(&users)
-	var roles []model.Role
-	_ = CRUD.GetAll(&roles)
+	var role model.Role
+	_ = CRUD.GetFirst(&role)
 
 	for _, user := range users {
-		user.Roles = roles
-		_ = CRUD.Update(&user)
+		user.RoleId = 1
+		fmt.Println(user)
+		//_ = CRUD.Update(&user)
 	}
 }

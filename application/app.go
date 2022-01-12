@@ -44,9 +44,9 @@ func InitFiberApp() *fiber.App {
 		},
 	)
 
-	router.SetupRoutes(app)
 	database.ConnectDB()
 	handler.InitValidator()
+	router.SetupRoutes(app)
 
 	return app
 }

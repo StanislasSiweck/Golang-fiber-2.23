@@ -17,6 +17,15 @@ func GetOne(data interface{}, id uint, joins ...string) error {
 	return statement.Limit(1).Find(data, id).Error
 }
 
+func GetFirst(data interface{}, joins ...string) error {
+	if utilities.IsStruct(data) {
+		return errors.New(messages.CrudDataNotPointer)
+	}
+	statement := database.DB.Model(data)
+	statement = repositories.Joins(statement, joins)
+	return statement.First(data).Error
+}
+
 func GetOneByColumn(data interface{}, column string, value interface{}, joins ...string) error {
 	if utilities.IsStruct(data) {
 		return errors.New(messages.CrudDataNotPointer)

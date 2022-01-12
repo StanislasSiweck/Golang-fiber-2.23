@@ -8,6 +8,9 @@ import (
 type User struct {
 	Id uint `gorm:"primaryKey" json:"id" validate:"omitempty,number"`
 
+	RoleId uint  `gorm:"not null" json:"role_id" validate:"omitempty"`
+	Role   *Role `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+
 	Firstname string `gorm:"not null; type:varchar(255)"`
 	Lastname  string `gorm:"not null; type:varchar(255)"`
 	Email     string `gorm:"not null; type:varbinary(255)"`
@@ -17,9 +20,6 @@ type User struct {
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at"`
-
-	//Many 2 many FK
-	Roles []Role `gorm:"many2many:user_roles;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }
 
 type Role struct {
@@ -29,6 +29,6 @@ type Role struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 
-	//Many 2 many FK
-	Users []User `gorm:"many2many:user_roles;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	//Has many FK
+	Users []User `gorm:"constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
 }

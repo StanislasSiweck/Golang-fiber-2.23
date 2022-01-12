@@ -1,12 +1,16 @@
 package router
 
 import (
+	"Golang_Fiber/database"
 	"Golang_Fiber/handler"
 	"Golang_Fiber/middleware"
+	"github.com/casbin/casbin/v2"
+	gormadapter "github.com/casbin/gorm-adapter/v3"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"log"
 	"time"
 )
 
@@ -46,15 +50,19 @@ func routeGeneralConfig(app *fiber.App) {
 //SetupRoutes Liste de routes
 func SetupRoutes(app *fiber.App) {
 	routeGeneralConfig(app)
+
+	e := InitCasbin()
+	_ = e.LoadPolicy()
+
 	api := app.Group("/api")
 
 	api.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("Hello, World !")
 	})
 
-	api.Get("/login", handler.Login)
+	api.Get("/login", handler.Login, middleware.CasbinMiddleware(e.Enforcer))
 
-	user := api.Group("/user", middleware.ValidateAuth())
+	user := api.Group("/user", middleware.ValidateAuth(), middleware.CasbinMiddleware(e.Enforcer))
 	user.Get("/", handler.GetAllUser)
 	user.Get("/current", handler.CurrentUser)
 	user.Get("/:id", handler.GetOneUser)
@@ -68,4 +76,22 @@ func SetupRoutes(app *fiber.App) {
 	role.Post("/", handler.CreateRole)
 	role.Put("/:id", handler.UpdateRole)
 	role.Delete("/:id", handler.DeleteRole)
+}
+
+func InitCasbin() *casbin.CachedEnforcer {
+	a, _ := gormadapter.NewAdapterByDB(database.DB)
+	var err error
+	var e *casbin.CachedEnforcer
+	e, err = casbin.NewCachedEnforcer("./config/model.conf", a)
+	if err != nil {
+		log.Panic("Error loading enforcer")
+	}
+
+	_, _ = e.AddPolicy("user", "/api/*", "(GET)|(POST)|(PUT)|(DELETE)|(PATCH)")
+
+	err = e.SavePolicy()
+	if err != nil {
+		log.Panic(err.Error())
+	}
+	return e
 }
